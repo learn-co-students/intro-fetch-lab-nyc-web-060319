@@ -5,8 +5,16 @@ factsAboutOne.addEventListener("click", factsAboutOneHandler);
 const pickANumber = document.querySelector("#pick-a-number");
 pickANumber.addEventListener("change", pickANumberHandler);
 
-document.addEventListener("DOMContentLoaded", failToStudyHistoryHandler);
+document.addEventListener("DOMContentLoaded", onloadedFuncs);
 
+
+const allNumbersButton = document.querySelector("#all-numbers-button");
+allNumbersButton.addEventListener("click", allTheNumbersHandler);
+
+function onloadedFuncs() {
+    failToStudyHistoryHandler();
+
+}
 
 function factsAboutOneHandler(event) {
     fetch("http://numbersapi.com/1/trivia").then(result => result.text()).then((result) => {
@@ -35,6 +43,39 @@ function pickANumberHandler(event) {
     });
 }
 
+let year = new Date().getFullYear();
+
 function failToStudyHistoryHandler(event) {
-    
+    fetch(`http://numbersapi.com/${year--}/year`).then(result => result.text()).then(result => {
+        const div = document.getElementById('year-history');
+        div.innerText = result;
+        const intervalID = window.setInterval(repeatingHistoryHandler, 5000);
+        console.log("Created interval function for repeatingHistoryHandler: " + intervalID);
+
+    });
+}
+
+
+function repeatingHistoryHandler() {
+    fetch(`http://numbersapi.com/${year--}/year`).then(result => result.text()).then(result => {
+        const div = document.getElementById('year-history');
+        div.innerText = result;
+    });
+}
+
+function allTheNumbersHandler(event) {
+    const allTheNumbers = document.querySelector("#all-the-numbers");
+    allTheNumbers.innerHTML = "";
+    const allTheNumberList = document.createElement("ul");
+    fetch("http://numbersapi.com/1..100")
+        .then(result => result.json())
+            .then(result => {
+                for(let key in result) {
+                    const newFact = document.createElement("li");
+                    newFact.innerText = result[key];
+                    allTheNumberList.appendChild(newFact);
+                }
+    });
+
+    allTheNumbers.appendChild(allTheNumberList);
 }
